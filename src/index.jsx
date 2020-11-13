@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 function translateXCSS(numPx) {
@@ -65,6 +65,10 @@ export default class Marquee extends PureComponent {
     this._setContainerRef = this._setContainerRef.bind(this);
     this._setInnerRef = this._setInnerRef.bind(this);
     this._tick = this._tick.bind(this);
+
+    this.state = {
+      animating: false,
+    }
   }
 
   ///////////////////////
@@ -114,9 +118,15 @@ export default class Marquee extends PureComponent {
   _requestAnimationIfNeeded() {
     const shouldAnimate = this._refs.container
       && this._refs.inner
-      && this._refs.inner.scrollWidth > this._refs.container.clientWidth;
+      && this._refs.inner.scrollWidth - this.props.childMargin * 2 > this._refs.container.clientWidth
     if (!shouldAnimate) {
+      this._resetPosition()
       return;
+    }
+    if (!this.state.animating) {
+      this.setState({
+        animating: true,
+      })
     }
 
     this._animationState.lastRequestId = window.requestAnimationFrame(this._tick);
@@ -183,7 +193,7 @@ export default class Marquee extends PureComponent {
     const Child = () => (
       <span
         style={{
-          margin: `0 ${childMargin}px`,
+          margin: `${childMargin}px`,
         }}
       >
         {children}
@@ -203,8 +213,7 @@ export default class Marquee extends PureComponent {
             display: 'inline-block',
           }}
         >
-          <Child />
-          <Child />
+          {this.state.animating ? <Fragment><Child /><Child /></Fragment> : <Child />}
         </div>
       </div>
     );

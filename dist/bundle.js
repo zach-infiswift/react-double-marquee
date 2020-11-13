@@ -159,6 +159,9 @@
       _this._setContainerRef = _this._setContainerRef.bind(_assertThisInitialized(_this));
       _this._setInnerRef = _this._setInnerRef.bind(_assertThisInitialized(_this));
       _this._tick = _this._tick.bind(_assertThisInitialized(_this));
+      _this.state = {
+        animating: false
+      };
       return _this;
     } ///////////////////////
     // Lifecycle methods //
@@ -215,10 +218,18 @@
     }, {
       key: "_requestAnimationIfNeeded",
       value: function _requestAnimationIfNeeded() {
-        var shouldAnimate = this._refs.container && this._refs.inner && this._refs.inner.scrollWidth > this._refs.container.clientWidth;
+        var shouldAnimate = this._refs.container && this._refs.inner && this._refs.inner.scrollWidth - this.props.childMargin * 2 > this._refs.container.clientWidth;
 
         if (!shouldAnimate) {
+          this._resetPosition();
+
           return;
+        }
+
+        if (!this.state.animating) {
+          this.setState({
+            animating: true
+          });
         }
 
         this._animationState.lastRequestId = window.requestAnimationFrame(this._tick);
@@ -298,7 +309,7 @@
         var Child = function Child() {
           return /*#__PURE__*/React__default.createElement("span", {
             style: {
-              margin: "0 ".concat(childMargin, "px")
+              margin: "".concat(childMargin, "px")
             }
           }, children);
         };
@@ -313,7 +324,7 @@
           style: {
             display: 'inline-block'
           }
-        }, /*#__PURE__*/React__default.createElement(Child, null), /*#__PURE__*/React__default.createElement(Child, null)));
+        }, this.state.animating ? /*#__PURE__*/React__default.createElement(React.Fragment, null, /*#__PURE__*/React__default.createElement(Child, null), /*#__PURE__*/React__default.createElement(Child, null)) : /*#__PURE__*/React__default.createElement(Child, null)));
       }
     }]);
 
